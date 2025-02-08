@@ -39,3 +39,11 @@ pub async fn update_user(State(state): State<Arc<AppState>>, Path(id): Path<Stri
         _ => (StatusCode::NOT_FOUND, Json(None))
      }
 }
+
+pub async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<String>) -> StatusCode {
+    let filter = mongodb::bson::doc! {"_id": &id};
+    match state.users.delete_one(filter, None).await {
+        Ok(_) => StatusCode::OK,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR
+    }
+}

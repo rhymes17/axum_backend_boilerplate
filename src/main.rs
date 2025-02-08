@@ -1,7 +1,7 @@
 use std::{env, sync::Arc};
 
 use axum::{routing::{post, get}, Router};
-use controller::{create_user, get_user_by_id, get_users, update_user};
+use controller::{create_user, delete_user, get_user_by_id, get_users, update_user};
 use dotenvy::dotenv;
 use model::User;
 use mongodb::{options::ClientOptions, Client, Collection};
@@ -33,7 +33,7 @@ async fn main() {
     // Router/App
     let app: Router = Router::new()
         .route("/users", post(create_user).get(get_users))
-        .route("/user/{id}", get(get_user_by_id).put(update_user))
+        .route("/user/{id}", get(get_user_by_id).put(update_user).delete(delete_user))
         .with_state(app_state);
 
     // Listener
