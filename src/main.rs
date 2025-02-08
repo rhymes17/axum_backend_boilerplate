@@ -36,7 +36,7 @@ async fn main() {
         .route("/user/{id}", get(get_user_by_id).put(update_user).delete(delete_user))
         .with_state(app_state);
 
-    // Listener
+    // Creating Listener
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     axum::serve(listener, app).await.unwrap();
