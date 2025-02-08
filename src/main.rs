@@ -1,5 +1,5 @@
-use axum::{routing::{get, post, delete, put}, Router, http::StatusCode};
-use controller::get_users;
+use axum::{routing::{get, post, delete, put}, Router};
+use controller::{create_user, get_users};
 use model::User;
 use mongodb::{Client, options::ClientOptions, Collection};
 use tokio::net::TcpListener;
@@ -29,8 +29,8 @@ async fn main() {
 
     let app_state = Arc::new(AppState{users: user_collection});
 
-    let app: Router = Router::new()
-        .route("/users", get(get_users)).with_state(app_state);
+    let app = Router::new()
+        .route("/users", post(create_user).get(get_users)).with_state(app_state);
 
     // Create Listener
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();

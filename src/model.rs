@@ -4,7 +4,7 @@ use serde;
 #[derive(Deserialize, Serialize, Debug)]
 pub struct User {
     #[serde(rename = "_id")]
-    id : Option<String>,
-    name: String,
-    email : String
+    pub id : Option<String>,
+    pub name: String,
+    pub email : String
 }
