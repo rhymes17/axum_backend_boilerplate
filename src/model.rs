@@ -1,10 +1,9 @@
-use serde::{Deserialize, Serialize};
-use serde;
+use serde::{self, Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug)]
-pub struct User {
+#[derive(Debug, Deserialize, Serialize)]
+pub struct User{
     #[serde(rename = "_id")]
     pub id : Option<String>,
     pub name: String,
-    pub email : String
+    pub email: String
 }

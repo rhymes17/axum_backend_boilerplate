@@ -1,16 +1,17 @@
-use axum::{routing::{get, post, delete, put}, Router};
-use controller::{create_user, get_users};
-use model::User;
-use mongodb::{Client, options::ClientOptions, Collection};
-use tokio::net::TcpListener;
 use std::{env, sync::Arc};
+
+use axum::{routing::{post, get}, Router};
+use controller::{create_user, get_user_by_id, get_users};
 use dotenvy::dotenv;
+use model::User;
+use mongodb::{options::ClientOptions, Client, Collection};
+use tokio::net::TcpListener;
 
 mod model;
 mod controller;
 
 #[derive(Clone)]
-struct AppState {
+struct AppState{
     users: Collection<User>
 }
 
@@ -18,9 +19,9 @@ struct AppState {
 async fn main() {
     dotenv().ok();
 
-    let mongo_uri = env::var("MONGO_URI").expect("unable to get MONGO_URI from env");
-    let database_name = env::var("DATABASE_NAME").expect("unable to get DATABASE_NAME from env");
-    let collection_name = env::var("COLLECTION_NAME").expect("unable to get COLLECTION_NAME from the env");
+    let mongo_uri = env::var("MONGO_URI").expect("Unable to get MONGO_URI from env");
+    let database_name = env::var("DATABASE_NAME").expect("Unable to get DATABASE_NAME from env");
+    let collection_name = "users";
 
     let client_options = ClientOptions::parse(&mongo_uri).await.unwrap();
     let client = Client::with_options(client_options).unwrap();
@@ -29,13 +30,14 @@ async fn main() {
 
     let app_state = Arc::new(AppState{users: user_collection});
 
-    let app = Router::new()
-        .route("/users", post(create_user).get(get_users)).with_state(app_state);
+    // Router/App
+    let app: Router = Router::new()
+        .route("/users", post(create_user).get(get_users))
+        .route("/user/{id}", get(get_user_by_id))
+        .with_state(app_state);
 
-    // Create Listener
+    // Listener
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    axum::serve(listener, app)
-        .await
-        .unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
