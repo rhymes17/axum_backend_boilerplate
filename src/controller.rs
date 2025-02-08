@@ -28,3 +28,14 @@ pub async fn create_user(State(state): State<Arc<AppState>>, Json(mut user): Jso
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(User {id: None, name: "".to_string(), email: "".to_string()}))
     }
 }
+
+pub async fn update_user(State(state): State<Arc<AppState>>, Path(id): Path<String>, Json(user) : Json<User>) -> (StatusCode, Json<Option<User>>) {
+    let filter = mongodb::bson::doc! {"_id": &id};
+    let update = mongodb::bson::doc! {"$set": {"_id": &id, "name": &user.name, "email": &user.email}};
+
+    match state.users.find_one_and_update(filter, update, None).await {
+        Ok(Some(result)) => (StatusCode::OK, Json(Some(result))),
+        Ok(None) => (StatusCode::NOT_FOUND, Json(None)),
+        _ => (StatusCode::NOT_FOUND, Json(None))
+     }
+}
